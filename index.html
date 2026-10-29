@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bills Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#fff1f6;--card:#fff;--tx:#3f1a2d;--mu:#8d6a7e;--bd:#fbd5e4;--ac:#ec5a96;--acx:#fff;--ok:#2f9e5b;--bad:#d0346f;--warn:#b7791f;--th:#ffd9e8;--page:#fff1f6;--cardg:#fff;--btn:linear-gradient(135deg,#ff9ec4,#ec5a96 55%,#c8449a);--btnx:#fff;--tile:#ffd9e8;--ban:linear-gradient(135deg,#ff9ec4,#ec5a96 55%,#c8449a);--banx:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1c1017;--card:#271923;--tx:#fff4f9;--mu:#b88aa3;--bd:#3d2432;--ac:#ff7ab8;--acx:#1c1017;--ok:#69db7c;--bad:#ff8fb3;--warn:#ffd57a;--th:#4a2336;--page:#1c1017;--cardg:#271923;--btn:linear-gradient(135deg,#b84a86,#8a2f75 55%,#642676);--btnx:#fff;--tile:#4a2336;--ban:linear-gradient(135deg,#a8407a,#8a2f75 55%,#642676);--banx:#fff}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#1c1017;--card:#271923;--tx:#fff4f9;--mu:#b88aa3;--bd:#3d2432;--ac:#ff7ab8;--acx:#1c1017;--ok:#69db7c;--bad:#ff8fb3;--warn:#ffd57a;--th:#4a2336;--page:#1c1017;--cardg:#271923;--btn:linear-gradient(135deg,#b84a86,#8a2f75 55%,#642676);--btnx:#fff;--tile:#4a2336;--ban:linear-gradient(135deg,#a8407a,#8a2f75 55%,#642676);--banx:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);background-attachment:fixed;background-color:var(--bg);color:var(--tx);font:14px/1.45 Poppins,Arial,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0;padding:16px 16px 4px;color:var(--banx)}
+h2{font-size:15px;margin:0 0 8px}
+#loginBtn{float:right;margin:3px 10px 0 0;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.7)}
+.viewer [data-ap],.viewer [data-del],.viewer [data-bi],.viewer [data-ri],.viewer [data-dp],.viewer #famSave,.viewer #formCard{display:none!important}
+#theme{font-size:24px;line-height:1;padding:2px 4px;float:right;background:none;border:0;box-shadow:none;color:inherit;font-weight:400}
+h1,h2,th,b,.tag,button,label{font-family:Poppins,Arial,sans-serif}
+.sub{margin:0;font-size:12px;padding:0 16px 14px;color:rgba(255,255,255,.92)}
+.hd{background:var(--ban);border-radius:16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(230,73,128,.25)}
+.card{background:var(--cardg);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(200,68,154,.10)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:block;font-size:11px;color:var(--mu);margin-bottom:3px}
+input,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);font:inherit}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 12px}
+button.p{background:var(--btn);color:var(--btnx);border-color:transparent;font-weight:700}
+button.s{padding:3px 8px;font-size:11px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.nav{display:flex;gap:4px;flex-wrap:nowrap;margin-bottom:14px;overflow-x:auto}
+.nav button{flex:1 1 auto;min-width:0;padding:10px 4px;font-size:12px;white-space:nowrap;text-align:center}
+.nav button.on{background:var(--btn);color:var(--btnx);border-color:transparent;font-weight:700}
+.sum{display:flex;gap:10px;flex-wrap:wrap}.sum div{flex:1;min-width:120px;background:var(--tile);border-radius:10px;padding:8px 10px}
+.sum b{display:block;font-size:15px}
+.wrap{overflow-x:auto;margin-bottom:8px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top;font-size:12px}
+th{background:var(--th);font-size:13px;font-weight:700;line-height:1.3;white-space:nowrap}
+tbody tr:nth-child(even){background:rgba(255,182,213,.16)}
+.rh{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.rh .sp{flex:1}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;font-weight:700;border:1px solid currentColor}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.note{font-size:11px;color:var(--mu)}
+.tot td{font-weight:700;background:var(--th)}
+.rt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--ac)}
+.mt{margin:0;font-size:22px;font-weight:700;line-height:1.15;letter-spacing:-.3px}
+.rt .tag{font-size:11px;padding:3px 11px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.cal .dh{font-size:10px;text-align:center;color:var(--mu);font-family:Poppins,Arial,sans-serif}
+.cal .d{display:flex;flex-direction:column;align-items:center;text-align:center;min-height:78px;border:1px solid var(--bd);border-radius:8px;padding:2px;background:var(--bg);overflow:hidden}
+.cal .d.o{border-color:transparent;background:transparent}
+.cal .d.t{border:2px solid var(--ac);background:var(--th)}
+.cal .cs{flex:1;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;width:100%}
+.cal .n{display:block;margin-top:2px;font-size:11px;font-weight:700;font-family:Poppins,Arial,sans-serif}
+.chip{display:inline-block;margin:2px 1px 0;padding:0;background:none;line-height:1}
+.chip .em{font-style:normal;font-size:20px;line-height:1.1}
+.calbar{display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:nowrap}
+#calMonth{flex:1.6;min-width:0}#calYear{flex:1;min-width:0}
+#calMonth,#calYear{font-size:15px;font-weight:700;font-family:Poppins,Arial,sans-serif;padding:9px 8px}
+#calPrev,#calNext{font-size:22px;line-height:1;padding:4px 12px}
+#calToday{margin-right:4px}
+.note .chip{display:inline-block;margin:0}
+.chip.e{background:#ffe08a}.chip.w{background:#a5d8ff}.chip.f{background:#d0bfff}
+.chip.pd{opacity:.4}
+.chip.od{outline:2px solid var(--bad);border-radius:6px}
+.dl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)}.dl:last-child{border:0}
+.sum .hero{flex-basis:100%;background:var(--ban);color:var(--btnx);padding:14px 16px;font-size:13px;font-family:Poppins,Arial,sans-serif}
+.sum .hero b{font-size:30px;line-height:1.2;margin-top:2px}
+#secTitle{font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.5px;margin:4px 4px 16px;padding-left:14px;border-left:7px solid var(--ac)}
+.info td{font-size:15px;padding:12px 10px;white-space:nowrap}
+.info th{padding:9px 10px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.thumbs figure{margin:0;text-align:center}.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--bd);cursor:pointer}.thumbs figcaption{font-size:11px;color:var(--mu)}
+dialog{border:1px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);max-width:420px;width:92%}
+dialog img{max-width:100%;border-radius:8px}
+</style>
+</head>
+<body>
+<main>
+<header class="hd">
+<h1>Bills Tracker <button id="loginBtn" class="s">Owner login</button><button id="theme" class="s" aria-label="Toggle light or dark mode">🌙</button></h1>
+<p class="sub">Electricity, water, and WiFi bills shared by 4 families.</p>
+</header>
+<h2 id="secTitle"></h2>
+<div class="nav" id="nav"></div>
+
+<section id="typeView">
+  <div class="card" id="formCard">
+    <h2 id="formTitle"></h2>
+    <div class="grid">
+      <div><label>Billing Month</label><input type="month" id="mo"></div>
+      <div><label>Bill Date</label><input type="date" id="bd"></div>
+      <div><label>Period Start</label><input type="date" id="pf"></div>
+      <div><label>Period End</label><input type="date" id="pt"></div>
+      <div><label>Current Charges (₱)</label><input type="number" id="tot" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label>Previous Balance (₱)</label><input type="number" id="pb" min="0" step="0.01" inputmode="decimal"></div>
+      <div id="pbWrap"><label>Previous Bill (₱)</label><input type="number" id="pbill" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label>Due Date</label><input type="date" id="dd"></div>
+      <div><label>Bill Photo (optional)</label><input type="file" id="bimg" accept="image/*"></div>
+    </div>
+    <div class="row"><button class="p" id="addBill">Save Bill</button><span class="note" id="msg"></span></div>
+  </div>
+  <div class="card sum" id="sum"></div>
+  <div id="records"></div>
+  <p class="note" id="empty" hidden>No records yet. Add the first one above.</p>
+</section>
+
+<section id="famView" hidden>
+  <div class="card">
+    <h2>Families</h2>
+    <div class="grid" id="fams"></div>
+    <div class="row"><button id="famSave">Save names</button><button class="p" id="famCopy">Copy Summary</button><span class="note">Equal split: current charges ÷ 4.</span></div>
+  </div>
+  <div class="card" id="sumBox" hidden><h2>Summary for your group chat</h2><textarea id="sumTxt" readonly rows="10" style="width:100%;padding:9px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);font:12px/1.4 Poppins,Arial,sans-serif"></textarea><p class="note" id="sumNote"></p></div>
+  <div id="famLists"></div>
+</section>
+<section id="calView" hidden>
+  <div class="card">
+    <div class="calbar">
+      <button id="calPrev" aria-label="Previous month">&lsaquo;</button>
+      <select id="calMonth"></select>
+      <button id="calNext" aria-label="Next month">&rsaquo;</button>
+      <select id="calYear"></select>
+    </div>
+    <div class="cal" id="calGrid"></div>
+    <p class="note" style="margin-top:10px"><button class="s" id="calToday">Today</button> &#9889; Electricity &middot; &#128167; Water &middot; &#128246; WiFi = due date &middot; faded = fully paid &middot; red outline = overdue</p>
+  </div>
+  <div class="card"><h2>Due this month</h2><div id="calList"></div></div>
+</section>
+<p class="note" id="store"></p>
+</main>
+
+<input type="file" id="bfile" accept="image/*" hidden>
+<dialog id="payDlg">
+  <h2>Add Payment</h2>
+  <div><label>Paid By</label><select id="pn"></select></div>
+  <div class="grid" style="margin-top:8px">
+    <div><label>Amount Paid (₱)</label><input type="number" id="pa" min="0" step="0.01" inputmode="decimal"></div>
+    <div><label>Date Paid</label><input type="date" id="pd"></div>
+  </div>
+  <div class="row"><button class="p" id="paySave">Save</button><button id="payCancel">Cancel</button><span class="note" id="pmsg"></span></div>
+</dialog>
+<dialog id="imgDlg"><img id="big" alt="Attachment"><div class="row"><button id="imgClose">Close</button></div></dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const peso=n=>'₱'+(Number(n)||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fd=d=>{if(!d)return '—';const x=new Date(d+'T00:00:00');return isNaN(x)?d:x.toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'})};
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const TYPES=['Kuryente','Tubig','WiFi'];
+const TL={Kuryente:'Electricity',Tubig:'Water',WiFi:'WiFi','Mga Pamilya':'Families',Calendar:'Calendar'};
+let db=null,assets=null,bills=[],tab='Kuryente',payFor=null,families=['Family 1','Family 2','Family 3','Family 4'];
+const LS='bills_tracker_v1';
+const mkey=b=>b.month||(b.billingDate||b.dueDate||'').slice(0,7);
+const mlabel=b=>{const m=mkey(b);if(!m)return '—';const x=new Date(m+'-01T00:00:00');return isNaN(x)?m:x.toLocaleDateString('en-PH',{month:'long',year:'numeric'})};
+const FEE={Kuryente:5,Tubig:5,WiFi:0};
+const fee=b=>FEE[b.type]||0;
+const share=b=>(Number(b.total)||0)/families.length+fee(b);
+const pays=(b,f)=>(b.payments||[]).map((x,i)=>({...x,i})).filter(x=>x.name===f);
+const sumAmt=a=>a.reduce((s,x)=>s+(Number(x.amount)||0),0);
+const famBal=(b,f)=>Math.max(share(b)-sumAmt(pays(b,f)),0);
+const lastDate=a=>a.map(x=>x.datePaid||'').sort().pop()||'';
+const byNew=(a,b)=>mkey(b).localeCompare(mkey(a))||(b.dueDate||'').localeCompare(a.dueDate||'');
+
+function compress(f){
+  return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,900/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.6))};im.onerror=()=>rej(new Error('Not an image'));im.src=fr.result};fr.onerror=()=>rej(new Error('Read failed'));fr.readAsDataURL(f)})}
+async function saveImage(f){const d=await compress(f);const r=await api({action:'upload',name:(f.name||'photo')+'.jpg',data:d});return r.url}
+function lsLoad(){try{bills=JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){bills=[]}try{const f=JSON.parse(localStorage.getItem(LS+'_fam')||'null');if(f&&f.length)families=f}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify(bills))}catch(e){}}
+const API='https://script.google.com/macros/s/AKfycbw9R26TTuTs3S3LRXXbpCNCFRKIBtxwq0Q7SzrvE3P0RyRfjg6Y2DYBEun68_pjkSCoyA/exec';
+let KEY='';try{KEY=localStorage.getItem(LS+'_key')||''}catch(e){}
+let owner=false;
+async function api(payload){
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,key:KEY})});
+  const j=await r.json();if(!j.ok)throw new Error(j.error||'Request failed');return j;
+}
+async function load(){
+  try{const r=await fetch(API+'?action=list');const j=await r.json();
+    if(j.ok){bills=j.bills||[];if(j.families&&j.families.length)families=j.families;lsSave();try{localStorage.setItem(LS+'_fam',JSON.stringify(families))}catch(e){}$('store').textContent='Synced with Google Sheets.'}}
+  catch(e){lsLoad();$('store').textContent='Offline: showing the last saved copy.'}
+  renderFam();render();
+}
+async function persist(b){
+  if(!owner){alert('View only. Log in as owner to make changes.');return}
+  const i=bills.findIndex(x=>x.id===b.id);if(i>=0)bills[i]=b;else bills.push(b);lsSave();render();
+  try{await api({action:'save',bill:b})}catch(e){$('msg').textContent='Could not save to Google Sheets: '+e.message}
+}
+async function removeBill(id){
+  if(!owner)return;
+  bills=bills.filter(b=>b.id!==id);lsSave();render();
+  try{await api({action:'delete',id})}catch(e){alert('Could not delete: '+e.message)}
+}
+function applyMode(){
+  document.body.classList.toggle('viewer',!owner);
+  $('loginBtn').textContent=owner?'Log out':'Owner login';
+  renderFam();render();
+}
+$('loginBtn').onclick=async()=>{
+  if(owner){owner=false;KEY='';try{localStorage.removeItem(LS+'_key')}catch(e){}applyMode();return}
+  const k=prompt('Enter owner passcode');if(!k)return;
+  KEY=k;
+  try{await api({action:'check'});owner=true;try{localStorage.setItem(LS+'_key',KEY)}catch(e){}}
+  catch(e){KEY='';alert('Wrong passcode or cannot reach Google Sheets.')}
+  applyMode();
+};
+
+function recordCard(b){
+  const owing=families.filter(f=>famBal(b,f)>0.004);
+  const st=owing.length===0?['Paid','ok']:(b.dueDate&&b.dueDate<today()?['Overdue','bad']:['Unpaid','warn']);
+  const line=x=>`<div class="note">${peso(x.amount)} · ${fd(x.datePaid)} <button class="s" data-dp="${b.id}|${x.i}">✕</button></div>`;
+  const rows=families.map(f=>{const p=pays(b,f),bal=famBal(b,f);
+    return `<tr><td><b>${esc(f)}</b></td><td>${peso(sumAmt(p))}${p.map(line).join('')}</td><td>${fd(lastDate(p))}</td><td><b class="${bal>0.004?'bad':'ok'}">${peso(bal)}</b></td></tr>`}).join('');
+  const rcpt=b.receiptImg||((b.payments||[]).find(x=>x.receipt)||{}).receipt;
+  const dv=(b.type!=='WiFi'&&Number(b.prevBill)>0)?(Number(b.total)||0)-Number(b.prevBill):null;
+  const pdiff=dv===null?'':`<div class="note">${dv>=0?'+':'−'}${peso(Math.abs(dv))} vs previous</div>`;
+  const oth=(b.payments||[]).map((x,i)=>({...x,i})).filter(x=>!families.includes(x.name));
+  const othRow=oth.length?`<tr><td><b>Other</b></td><td>${oth.map(x=>`<div class="note">${esc(x.name)} · ${peso(x.amount)} · ${fd(x.datePaid)} <button class="s" data-dp="${b.id}|${x.i}">✕</button></div>`).join('')}</td><td></td><td></td></tr>`:'';
+  return `<div class="card"><div class="rt"><h2 class="mt">${esc(mlabel(b))}</h2><span class="tag ${st[1]}">${st[0]}</span></div><div class="rh">${b.billImg?`<button class="s" data-r="${esc(b.billImg)}">View Bill</button>`:''}<button class="s" data-bi="${b.id}">${b.billImg?'Change Bill Photo':'+ Bill Photo'}</button><button class="s p" data-ap="${b.id}">+ Payment</button><button class="s" data-del="${b.id}">Delete</button></div>
+  <div class="wrap"><table class="info"><thead><tr><th>Billing Month</th><th>Bill Date</th><th>Billing Period</th><th>Current Charges</th>${b.type!=='WiFi'?'<th>Previous Bill</th>':''}<th>Previous Balance</th><th>Due Date</th><th>Family Share</th></tr></thead>
+  <tbody><tr><td>${esc(mlabel(b))}</td><td>${fd(b.billingDate)}</td><td>${fd(b.periodFrom)} – ${fd(b.periodTo)}</td><td>${peso(b.total)}</td>${b.type!=='WiFi'?`<td>${peso(b.prevBill)}${pdiff}</td>`:''}<td>${peso(b.prevBal)}</td><td>${fd(b.dueDate)}</td><td><b>${peso(share(b))}</b>${fee(b)?`<div class="note">${peso((Number(b.total)||0)/families.length)} + ${peso(fee(b))} fee</div>`:''}</td></tr></tbody></table></div>
+  <div class="wrap"><table><thead><tr><th>Family</th><th>Amount Paid</th><th>Date Paid</th><th>Remaining Balance</th></tr></thead><tbody>${rows}${othRow}</tbody></table></div><div class="rc"><b>Receipt (whole bill)</b><div class="thumbs">${rcpt?`<figure><img src="${esc(rcpt)}" data-r="${esc(rcpt)}" alt="Receipt"></figure>`:'<span class="note">No receipt yet.</span>'}</div><div class="row" style="margin-top:6px"><button class="s p" data-ri="${b.id}">${rcpt?'Change Receipt':'+ Receipt'}</button></div></div></div>`;
+}
+
+function famList(f){
+  let tb=0,html='';
+  TYPES.forEach(t=>{
+    const l=bills.filter(b=>b.type===t).sort(byNew);if(!l.length)return;
+    html+=`<tr><td colspan="5"><b>${TL[t]}</b></td></tr>`;
+    l.forEach(b=>{const p=pays(b,f),bal=famBal(b,f);tb+=bal;
+      html+=`<tr><td>${esc(mlabel(b))}</td><td>${peso(share(b))}</td><td>${peso(sumAmt(p))}</td><td>${fd(lastDate(p))}</td><td><b class="${bal>0.004?'bad':'ok'}">${peso(bal)}</b></td></tr>`});
+  });
+  if(!html)html='<tr><td colspan="5" class="note">No records yet.</td></tr>';
+  return `<div class="card"><div class="rh"><h2 style="margin:0">${esc(f)}</h2><span class="sp"></span><span>Total Balance: <b class="${tb>0.004?'bad':'ok'}">${peso(tb)}</b></span></div>
+  <div class="wrap"><table><thead><tr><th>Billing Month</th><th>Share</th><th>Amount Paid</th><th>Date Paid</th><th>Remaining Balance</th></tr></thead><tbody>${html}<tr class="tot"><td colspan="4">Total Balance</td><td>${peso(tb)}</td></tr></tbody></table></div></div>`;
+}
+
+function render(){
+  $('nav').innerHTML=TYPES.concat(['Mga Pamilya','Calendar']).map(t=>`<button class="${t===tab?'on':''}" data-t="${t}">${TL[t]}</button>`).join('');
+  $('pn').innerHTML=families.map(n=>`<option>${esc(n)}</option>`).join('');
+  const isType=TYPES.includes(tab);
+  $('secTitle').textContent=TL[tab];
+  $('pbWrap').hidden=tab==='WiFi';
+  const isCal=tab==='Calendar';
+  $('typeView').hidden=!isType;$('famView').hidden=isType||isCal;$('calView').hidden=!isCal;
+  if(isType){
+    $('formTitle').textContent='New '+TL[tab]+' Bill';
+    const list=bills.filter(b=>b.type===tab).sort(byNew);
+    const tot=list.reduce((s,b)=>s+(Number(b.total)||0),0),bal=list.reduce((s,b)=>s+families.reduce((a,f)=>a+Math.max((Number(b.total)||0)/families.length-sumAmt(pays(b,f)),0),0),0);
+    const cb=list[0];
+    $('sum').innerHTML=`<div class="hero">Current Charges${cb?' · '+esc(mlabel(cb)):''}<b>${peso(cb?cb.total:0)}</b></div>${tab!=='WiFi'?`<div>Previous Bill<b>${peso(cb?cb.prevBill:0)}</b></div>`:''}<div>Total Billed<b>${peso(tot)}</b></div><div>Total Paid<b>${peso(tot-bal)}</b></div><div>Remaining Balance<b>${peso(bal)}</b></div>`;
+    $('records').innerHTML=list.map(recordCard).join('');
+    $('empty').hidden=list.length>0;
+  }else if(isCal){
+    renderCal();
+  }else{
+    $('famLists').innerHTML=families.map(famList).join('');
+  }
+}
+let calY=new Date().getFullYear(),calM=new Date().getMonth();
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const AB={Kuryente:['Electricity','e','⚡'],Tubig:['Water','w','💧'],WiFi:['WiFi','f','📶']};
+const isPaid=b=>families.every(f=>famBal(b,f)<0.005);
+function renderCal(){
+  $('calMonth').innerHTML=MN.map((m,i)=>`<option value="${i}"${i===calM?' selected':''}>${m}</option>`).join('');
+  const y0=new Date().getFullYear(),ys=[];for(let y=y0-2;y<=y0+3;y++)ys.push(y);if(!ys.includes(calY))ys.push(calY);ys.sort();
+  $('calYear').innerHTML=ys.map(y=>`<option${y===calY?' selected':''}>${y}</option>`).join('');
+  const first=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate();
+  const pre=calY+'-'+String(calM+1).padStart(2,'0')+'-',td=today();
+  const inMonth=bills.filter(b=>b.dueDate&&b.dueDate.startsWith(pre)).sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+  let h=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dh">${d}</div>`).join('');
+  for(let i=0;i<first;i++)h+='<div class="d o"></div>';
+  for(let d=1;d<=days;d++){
+    const key=pre+String(d).padStart(2,'0');
+    const chips=inMonth.filter(b=>b.dueDate===key).map(b=>{const pd=isPaid(b),od=!pd&&key<td;const a=AB[b.type]||['Bill','e','🧾'];return `<span class="chip${pd?' pd':''}${od?' od':''}" title="${a[0]}"><i class="em">${a[2]}</i></span>`}).join('');
+    h+=`<div class="d${key===td?' t':''}"><span class="n">${d}</span><div class="cs">${chips}</div></div>`;
+  }
+  $('calGrid').innerHTML=h;
+  $('calList').innerHTML=inMonth.length?inMonth.map(b=>{const pd=isPaid(b),od=!pd&&b.dueDate<td;const st=pd?['Paid','ok']:od?['Overdue','bad']:['Unpaid','warn'];
+    return `<div class="dl"><b>${fd(b.dueDate)}</b><span>${esc(TL[b.type]||b.type)}</span><span>${peso(b.total)}</span><span class="tag ${st[1]}">${st[0]}</span></div>`}).join(''):'<p class="note">No bills due this month.</p>';
+}
+function calGo(m,y){calM=m;calY=y;renderCal()}
+$('calPrev').onclick=()=>calM===0?calGo(11,calY-1):calGo(calM-1,calY);
+$('calNext').onclick=()=>calM===11?calGo(0,calY+1):calGo(calM+1,calY);
+$('calMonth').onchange=e=>calGo(Number(e.target.value),calY);
+$('calYear').onchange=e=>calGo(calM,Number(e.target.value));
+$('calToday').onclick=()=>{const n=new Date();calGo(n.getMonth(),n.getFullYear())};
+function renderFam(){$('fams').innerHTML=families.map((f,i)=>`<div><label>Family ${i+1}</label><input data-f="${i}" value="${esc(f)}"${owner?'':' disabled'}></div>`).join('')}
+
+$('nav').onclick=e=>{const t=e.target.dataset.t;if(t){tab=t;render()}};
+$('records').onclick=async e=>{
+  const t=e.target;
+  if(t.dataset.ap){payFor=t.dataset.ap;$('pa').value='';$('pd').value=today();$('pmsg').textContent='';
+$('payDlg').showModal()}
+  else if(t.dataset.bi){billFor=t.dataset.bi;kind='bill';$('bfile').value='';$('bfile').click()}
+  else if(t.dataset.ri){billFor=t.dataset.ri;kind='receipt';$('bfile').value='';$('bfile').click()}
+  else if(t.dataset.r){$('big').src=t.dataset.r;$('imgDlg').showModal()}
+  else if(t.dataset.del){if(confirm('Delete this record and all its payments?'))removeBill(t.dataset.del)}
+  else if(t.dataset.dp){const [id,i]=t.dataset.dp.split('|');const b=bills.find(x=>x.id===id);
+    if(b&&confirm('Remove this payment?'))persist({...b,payments:b.payments.filter((_,k)=>k!==Number(i))})}
+};
+$('imgClose').onclick=()=>$('imgDlg').close();
+$('payCancel').onclick=()=>$('payDlg').close();
+let billFor=null,kind='bill';
+$('bfile').onchange=async()=>{const f=$('bfile').files[0];const b=bills.find(x=>x.id===billFor);if(!f||!b)return;try{const u=await saveImage(f);await persist(kind==='receipt'?{...b,receiptImg:u}:{...b,billImg:u})}catch(e){alert('Could not upload: '+(e.message||e.code))}};
+
+$('addBill').onclick=async()=>{
+  const total=parseFloat($('tot').value);
+  if(!(total>0)||!$('dd').value||!$('mo').value){$('msg').textContent='Enter the month, due date, and current charges.';return}
+  const b={id:String(Date.now()),type:tab,month:$('mo').value,billingDate:$('bd').value,periodFrom:$('pf').value,periodTo:$('pt').value,dueDate:$('dd').value,total,prevBal:parseFloat($('pb').value)||0,prevBill:parseFloat($('pbill').value)||0,payments:[]};
+  $('msg').textContent='';
+  const bf=$('bimg').files[0];
+  if(bf){try{$('msg').textContent='Uploading photo…';b.billImg=await saveImage(bf)}catch(e){$('msg').textContent='Could not upload photo: '+(e.message||e.code);return}}
+  await persist(b);
+  ['mo','bd','pf','pt','dd','tot','pb','pbill','bimg'].forEach(i=>$(i).value='');
+  $('msg').textContent='Saved! Tap “+ Payment” on a record to add a payment.';
+};
+
+$('paySave').onclick=async()=>{
+  const name=$('pn').value,amount=parseFloat($('pa').value);
+  if(!name||!(amount>0)){$('pmsg').textContent='Choose a family and enter the amount.';return}
+  const b=bills.find(x=>x.id===payFor);if(!b)return;
+  const pay={name,amount,datePaid:$('pd').value};
+  await persist({...b,payments:[...(b.payments||[]),pay]});
+  $('payDlg').close();
+};
+
+$('famSave').onclick=async()=>{
+  families=[...document.querySelectorAll('#fams input')].map((x,i)=>x.value.trim()||('Family '+(i+1)));
+  if(owner){try{await api({action:'families',names:families})}catch(e){}}
+  try{localStorage.setItem(LS+'_fam',JSON.stringify(families))}catch(e){}
+  render();
+};
+
+$('famCopy').onclick=async()=>{
+  const latest=TYPES.map(t=>bills.filter(x=>x.type===t).sort(byNew)[0]).filter(Boolean);
+  const L=[('Bills to pay · '+fd(today())).toUpperCase()];
+  families.forEach(f=>{
+    L.push('','=== '+f+' ===');
+    let cur=0;
+    latest.forEach(x=>{
+      const r=famBal(x,f);cur+=r;
+      L.push('');
+      L.push((TL[x.type]+' · '+mlabel(x)).toUpperCase());
+      if(x.periodFrom||x.periodTo)L.push('Period: '+fd(x.periodFrom)+' – '+fd(x.periodTo));
+      L.push('Due: '+fd(x.dueDate));
+      L.push('Current charges: '+peso(x.total));
+      if(x.type!=='WiFi'&&Number(x.prevBill)>0)L.push('Previous bill: '+peso(x.prevBill));
+      L.push('To pay: '+(r<0.005?'Paid':peso(r)));
+    });
+    const prev=bills.filter(x=>!latest.includes(x)).reduce((s,x)=>s+famBal(x,f),0);
+    L.push('');
+    if(prev>=0.005)L.push('Balance: '+peso(prev));
+    L.push('Total to pay: '+((cur+prev)<0.005?'Paid':peso(cur+prev)));
+  });
+  const txt=L.join('\n');
+  $('sumTxt').value=txt;$('sumBox').hidden=false;
+  try{await navigator.clipboard.writeText(txt);$('sumNote').textContent='Copied! Paste it in your group chat.'}catch(e){$('sumNote').textContent='Tap the text, select all, then copy.'}
+};
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches}
+function setTheme(t){document.documentElement.dataset.theme=t;$('theme').textContent=t==='dark'?'☀️':'🌙';$('theme').title=t==='dark'?'Switch to light mode':'Switch to dark mode';try{localStorage.setItem(LS+'_theme',t)}catch(e){}}
+$('theme').onclick=()=>setTheme(isDark()?'light':'dark');
+try{setTheme(localStorage.getItem(LS+'_theme')||(isDark()?'dark':'light'))}catch(e){setTheme(isDark()?'dark':'light')}
+$('mo').value=today().slice(0,7);
+
+const ORDER=TYPES.concat(['Mga Pamilya','Calendar']);
+let tx=0,ty=0,tOk=false;
+document.addEventListener('touchstart',e=>{
+  const t=e.target;
+  tOk=e.touches.length===1&&!(t.closest&&t.closest('.wrap,input,select,textarea,dialog'));
+  if(tOk){tx=e.touches[0].clientX;ty=e.touches[0].clientY}
+},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(!tOk)return;tOk=false;
+  const c=e.changedTouches[0],dx=c.clientX-tx,dy=c.clientY-ty;
+  if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.5)return;
+  const i=ORDER.indexOf(tab)+(dx<0?1:-1);
+  if(i<0||i>=ORDER.length)return;
+  tab=ORDER[i];render();
+},{passive:true});
+
+(async function init(){
+  lsLoad();
+  if(KEY){try{await api({action:'check'});owner=true}catch(e){KEY='';try{localStorage.removeItem(LS+'_key')}catch(x){}}}
+  applyMode();
+  await load();
+  setInterval(()=>{if(!document.hidden&&!owner)load()},30000);
+})();
+</script>
+</body>
+</html>
