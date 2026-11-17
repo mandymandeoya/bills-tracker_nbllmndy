@@ -26,7 +26,7 @@ main{max-width:1000px;margin:0 auto;padding:16px}
 h1{font-size:20px;margin:0;padding:16px 16px 4px;color:var(--banx)}
 h2{font-size:15px;margin:0 0 8px}
 #loginBtn{float:right;margin:3px 10px 0 0;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.7)}
-.viewer [data-ap],.viewer [data-del],.viewer [data-bi],.viewer [data-ri],.viewer [data-dp],.viewer #famSave,.viewer #formCard{display:none!important}
+.viewer [data-ap],.viewer [data-ed],.viewer [data-del],.viewer [data-bi],.viewer [data-ri],.viewer [data-dp],.viewer #famSave,.viewer #formCard{display:none!important}
 #theme{font-size:24px;line-height:1;padding:2px 4px;float:right;background:none;border:0;box-shadow:none;color:inherit;font-weight:400}
 h1,h2,th,b,.tag,button,label{font-family:Poppins,Arial,sans-serif}
 .sub{margin:0;font-size:12px;padding:0 16px 14px;color:rgba(255,255,255,.92)}
@@ -109,7 +109,7 @@ dialog img{max-width:100%;border-radius:8px}
       <div><label>Due Date</label><input type="date" id="dd"></div>
       <div><label>Bill Photo (optional)</label><input type="file" id="bimg" accept="image/*"></div>
     </div>
-    <div class="row"><button class="p" id="addBill">Save Bill</button><span class="note" id="msg"></span></div>
+    <div class="row"><button class="p" id="addBill">Save Bill</button><button id="editCancel" hidden>Cancel</button><span class="note" id="msg"></span></div>
   </div>
   <div class="card sum" id="sum"></div>
   <div id="records"></div>
@@ -167,7 +167,8 @@ const mkey=b=>b.month||(b.billingDate||b.dueDate||'').slice(0,7);
 const mlabel=b=>{const m=mkey(b);if(!m)return '—';const x=new Date(m+'-01T00:00:00');return isNaN(x)?m:x.toLocaleDateString('en-PH',{month:'long',year:'numeric'})};
 const FEE={Kuryente:5,Tubig:5,WiFi:0};
 const fee=b=>FEE[b.type]||0;
-const share=b=>(Number(b.total)||0)/families.length+fee(b);
+const base=b=>((Number(b.total)||0)+(Number(b.prevBal)||0))/families.length;
+const share=b=>base(b)+fee(b);
 const pays=(b,f)=>(b.payments||[]).map((x,i)=>({...x,i})).filter(x=>x.name===f);
 const sumAmt=a=>a.reduce((s,x)=>s+(Number(x.amount)||0),0);
 const famBal=(b,f)=>Math.max(share(b)-sumAmt(pays(b,f)),0);
@@ -227,9 +228,9 @@ function recordCard(b){
   const pdiff=dv===null?'':`<div class="note">${dv>=0?'+':'−'}${peso(Math.abs(dv))} vs previous</div>`;
   const oth=(b.payments||[]).map((x,i)=>({...x,i})).filter(x=>!families.includes(x.name));
   const othRow=oth.length?`<tr><td><b>Other</b></td><td>${oth.map(x=>`<div class="note">${esc(x.name)} · ${peso(x.amount)} · ${fd(x.datePaid)} <button class="s" data-dp="${b.id}|${x.i}">✕</button></div>`).join('')}</td><td></td><td></td></tr>`:'';
-  return `<div class="card"><div class="rt"><h2 class="mt">${esc(mlabel(b))}</h2><span class="tag ${st[1]}">${st[0]}</span></div><div class="rh">${b.billImg?`<button class="s" data-r="${esc(b.billImg)}">View Bill</button>`:''}<button class="s" data-bi="${b.id}">${b.billImg?'Change Bill Photo':'+ Bill Photo'}</button><button class="s p" data-ap="${b.id}">+ Payment</button><button class="s" data-del="${b.id}">Delete</button></div>
+  return `<div class="card"><div class="rt"><h2 class="mt">${esc(mlabel(b))}</h2><span class="tag ${st[1]}">${st[0]}</span></div><div class="rh">${b.billImg?`<button class="s" data-r="${esc(b.billImg)}">View Bill</button>`:''}<button class="s" data-bi="${b.id}">${b.billImg?'Change Bill Photo':'+ Bill Photo'}</button><button class="s p" data-ap="${b.id}">+ Payment</button><button class="s" data-ed="${b.id}">Edit</button><button class="s" data-del="${b.id}">Delete</button></div>
   <div class="wrap"><table class="info"><thead><tr><th>Billing Month</th><th>Bill Date</th><th>Billing Period</th><th>Current Charges</th>${b.type!=='WiFi'?'<th>Previous Bill</th>':''}<th>Previous Balance</th><th>Due Date</th><th>Family Share</th></tr></thead>
-  <tbody><tr><td>${esc(mlabel(b))}</td><td>${fd(b.billingDate)}</td><td>${fd(b.periodFrom)} – ${fd(b.periodTo)}</td><td>${peso(b.total)}</td>${b.type!=='WiFi'?`<td>${peso(b.prevBill)}${pdiff}</td>`:''}<td>${peso(b.prevBal)}</td><td>${fd(b.dueDate)}</td><td><b>${peso(share(b))}</b>${fee(b)?`<div class="note">${peso((Number(b.total)||0)/families.length)} + ${peso(fee(b))} fee</div>`:''}</td></tr></tbody></table></div>
+  <tbody><tr><td>${esc(mlabel(b))}</td><td>${fd(b.billingDate)}</td><td>${fd(b.periodFrom)} – ${fd(b.periodTo)}</td><td>${peso(b.total)}</td>${b.type!=='WiFi'?`<td>${peso(b.prevBill)}${pdiff}</td>`:''}<td>${peso(b.prevBal)}</td><td>${fd(b.dueDate)}</td><td><b>${peso(share(b))}</b>${fee(b)?`<div class="note">${peso(base(b))} + ${peso(fee(b))} fee</div>`:''}</td></tr></tbody></table></div>
   <div class="wrap"><table><thead><tr><th>Family</th><th>Amount Paid</th><th>Date Paid</th><th>Remaining Balance</th></tr></thead><tbody>${rows}${othRow}</tbody></table></div><div class="rc"><b>Receipt (whole bill)</b><div class="thumbs">${rcpt?`<figure><img src="${esc(rcpt)}" data-r="${esc(rcpt)}" alt="Receipt"></figure>`:'<span class="note">No receipt yet.</span>'}</div><div class="row" style="margin-top:6px"><button class="s p" data-ri="${b.id}">${rcpt?'Change Receipt':'+ Receipt'}</button></div></div></div>`;
 }
 
@@ -247,6 +248,7 @@ function famList(f){
 }
 
 function render(){
+  if(editId){const eb=bills.find(x=>x.id===editId);if(!eb||eb.type!==tab)resetForm()}
   $('nav').innerHTML=TYPES.concat(['Mga Pamilya','Calendar']).map(t=>`<button class="${t===tab?'on':''}" data-t="${t}">${TL[t]}</button>`).join('');
   $('pn').innerHTML=families.map(n=>`<option>${esc(n)}</option>`).join('');
   const isType=TYPES.includes(tab);
@@ -255,9 +257,9 @@ function render(){
   const isCal=tab==='Calendar';
   $('typeView').hidden=!isType;$('famView').hidden=isType||isCal;$('calView').hidden=!isCal;
   if(isType){
-    $('formTitle').textContent='New '+TL[tab]+' Bill';
+    $('formTitle').textContent=(editId?'Edit ':'New ')+TL[tab]+' Bill';
     const list=bills.filter(b=>b.type===tab).sort(byNew);
-    const tot=list.reduce((s,b)=>s+(Number(b.total)||0),0),bal=list.reduce((s,b)=>s+families.reduce((a,f)=>a+Math.max((Number(b.total)||0)/families.length-sumAmt(pays(b,f)),0),0),0);
+    const tot=list.reduce((s,b)=>s+(Number(b.total)||0)+(Number(b.prevBal)||0),0),bal=list.reduce((s,b)=>s+families.reduce((a,f)=>a+Math.max(base(b)-sumAmt(pays(b,f)),0),0),0);
     const cb=list[0];
     $('sum').innerHTML=`<div class="hero">Current Charges${cb?' · '+esc(mlabel(cb)):''}<b>${peso(cb?cb.total:0)}</b></div>${tab!=='WiFi'?`<div>Previous Bill<b>${peso(cb?cb.prevBill:0)}</b></div>`:''}<div>Total Billed<b>${peso(tot)}</b></div><div>Total Paid<b>${peso(tot-bal)}</b></div><div>Remaining Balance<b>${peso(bal)}</b></div>`;
     $('records').innerHTML=list.map(recordCard).join('');
@@ -306,6 +308,7 @@ $('payDlg').showModal()}
   else if(t.dataset.bi){billFor=t.dataset.bi;kind='bill';$('bfile').value='';$('bfile').click()}
   else if(t.dataset.ri){billFor=t.dataset.ri;kind='receipt';$('bfile').value='';$('bfile').click()}
   else if(t.dataset.r){$('big').src=t.dataset.r;$('imgDlg').showModal()}
+  else if(t.dataset.ed){startEdit(t.dataset.ed)}
   else if(t.dataset.del){if(confirm('Delete this record and all its payments?'))removeBill(t.dataset.del)}
   else if(t.dataset.dp){const [id,i]=t.dataset.dp.split('|');const b=bills.find(x=>x.id===id);
     if(b&&confirm('Remove this payment?'))persist({...b,payments:b.payments.filter((_,k)=>k!==Number(i))})}
@@ -315,16 +318,37 @@ $('payCancel').onclick=()=>$('payDlg').close();
 let billFor=null,kind='bill';
 $('bfile').onchange=async()=>{const f=$('bfile').files[0];const b=bills.find(x=>x.id===billFor);if(!f||!b)return;try{const u=await saveImage(f);await persist(kind==='receipt'?{...b,receiptImg:u}:{...b,billImg:u})}catch(e){alert('Could not upload: '+(e.message||e.code))}};
 
+let editId=null;
+function resetForm(){
+  editId=null;
+  ['bd','pf','pt','dd','tot','pb','pbill','bimg'].forEach(i=>$(i).value='');
+  $('mo').value=today().slice(0,7);
+  $('addBill').textContent='Save Bill';$('editCancel').hidden=true;
+}
+function startEdit(id){
+  const b=bills.find(x=>x.id===id);if(!b)return;
+  editId=id;
+  $('mo').value=mkey(b);$('bd').value=b.billingDate||'';$('pf').value=b.periodFrom||'';$('pt').value=b.periodTo||'';$('dd').value=b.dueDate||'';
+  $('tot').value=b.total||'';$('pb').value=b.prevBal||'';$('pbill').value=b.prevBill||'';$('bimg').value='';
+  $('addBill').textContent='Update Bill';$('editCancel').hidden=false;$('msg').textContent='';
+  render();
+  $('formCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('editCancel').onclick=()=>{resetForm();$('msg').textContent='';render()};
 $('addBill').onclick=async()=>{
   const total=parseFloat($('tot').value);
   if(!(total>0)||!$('dd').value||!$('mo').value){$('msg').textContent='Enter the month, due date, and current charges.';return}
-  const b={id:String(Date.now()),type:tab,month:$('mo').value,billingDate:$('bd').value,periodFrom:$('pf').value,periodTo:$('pt').value,dueDate:$('dd').value,total,prevBal:parseFloat($('pb').value)||0,prevBill:parseFloat($('pbill').value)||0,payments:[]};
+  const old=editId?bills.find(x=>x.id===editId):null;
+  const b={id:old?old.id:String(Date.now()),type:old?old.type:tab,month:$('mo').value,billingDate:$('bd').value,periodFrom:$('pf').value,periodTo:$('pt').value,dueDate:$('dd').value,total,prevBal:parseFloat($('pb').value)||0,prevBill:parseFloat($('pbill').value)||0,payments:old?(old.payments||[]):[]};
+  if(old){if(old.billImg)b.billImg=old.billImg;if(old.receiptImg)b.receiptImg=old.receiptImg}
   $('msg').textContent='';
   const bf=$('bimg').files[0];
   if(bf){try{$('msg').textContent='Uploading photo…';b.billImg=await saveImage(bf)}catch(e){$('msg').textContent='Could not upload photo: '+(e.message||e.code);return}}
   await persist(b);
-  ['mo','bd','pf','pt','dd','tot','pb','pbill','bimg'].forEach(i=>$(i).value='');
-  $('msg').textContent='Saved! Tap “+ Payment” on a record to add a payment.';
+  const wasEdit=!!old;
+  resetForm();
+  if(!$('msg').textContent||$('msg').textContent==='Uploading photo…')$('msg').textContent=wasEdit?'Updated!':'Saved! Tap “+ Payment” on a record to add a payment.';
+  render();
 };
 
 $('paySave').onclick=async()=>{
@@ -356,6 +380,7 @@ $('famCopy').onclick=async()=>{
       if(x.periodFrom||x.periodTo)L.push('Period: '+fd(x.periodFrom)+' – '+fd(x.periodTo));
       L.push('Due: '+fd(x.dueDate));
       L.push('Current charges: '+peso(x.total));
+      if(Number(x.prevBal)>0)L.push('Previous balance: '+peso(x.prevBal));
       if(x.type!=='WiFi'&&Number(x.prevBill)>0)L.push('Previous bill: '+peso(x.prevBill));
       L.push('To pay: '+(r<0.005?'Paid':peso(r)));
     });
