@@ -50,6 +50,8 @@ th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:left;vertical
 th{background:var(--th);font-size:13px;font-weight:700;line-height:1.3;white-space:nowrap}
 tbody tr:nth-child(even){background:rgba(255,182,213,.16)}
 .rh{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.rh .sp{flex:1}
+.rb{flex-wrap:nowrap;gap:4px;overflow-x:auto}
+.rb button.s{flex:1 0 auto;padding:5px 6px;font-size:10.5px;white-space:nowrap}
 .tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:10px;font-weight:700;border:1px solid currentColor}
 .ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
 .note{font-size:11px;color:var(--mu)}
@@ -228,7 +230,7 @@ function recordCard(b){
   const pdiff=dv===null?'':`<div class="note">${dv>=0?'+':'−'}${peso(Math.abs(dv))} vs previous</div>`;
   const oth=(b.payments||[]).map((x,i)=>({...x,i})).filter(x=>!families.includes(x.name));
   const othRow=oth.length?`<tr><td><b>Other</b></td><td>${oth.map(x=>`<div class="note">${esc(x.name)} · ${peso(x.amount)} · ${fd(x.datePaid)} <button class="s" data-dp="${b.id}|${x.i}">✕</button></div>`).join('')}</td><td></td><td></td></tr>`:'';
-  return `<div class="card"><div class="rt"><h2 class="mt">${esc(mlabel(b))}</h2><span class="tag ${st[1]}">${st[0]}</span></div><div class="rh">${b.billImg?`<button class="s" data-r="${esc(b.billImg)}">View Bill</button>`:''}<button class="s" data-bi="${b.id}">${b.billImg?'Change Bill Photo':'+ Bill Photo'}</button><button class="s p" data-ap="${b.id}">+ Payment</button><button class="s" data-ed="${b.id}">Edit</button><button class="s" data-del="${b.id}">Delete</button></div>
+  return `<div class="card"><div class="rt"><h2 class="mt">${esc(mlabel(b))}</h2><span class="tag ${st[1]}">${st[0]}</span></div><div class="rh rb">${b.billImg?`<button class="s" data-r="${esc(b.billImg)}">View Bill</button>`:''}<button class="s" data-bi="${b.id}">${b.billImg?'Change Photo':'+ Bill Photo'}</button><button class="s p" data-ap="${b.id}">+ Payment</button><button class="s" data-ed="${b.id}">Edit</button><button class="s" data-del="${b.id}">Delete</button></div>
   <div class="wrap"><table class="info"><thead><tr><th>Billing Month</th><th>Bill Date</th><th>Billing Period</th><th>Current Charges</th>${b.type!=='WiFi'?'<th>Previous Bill</th>':''}<th>Previous Balance</th><th>Due Date</th><th>Family Share</th></tr></thead>
   <tbody><tr><td>${esc(mlabel(b))}</td><td>${fd(b.billingDate)}</td><td>${fd(b.periodFrom)} – ${fd(b.periodTo)}</td><td>${peso(b.total)}</td>${b.type!=='WiFi'?`<td>${peso(b.prevBill)}${pdiff}</td>`:''}<td>${peso(b.prevBal)}</td><td>${fd(b.dueDate)}</td><td><b>${peso(share(b))}</b>${fee(b)?`<div class="note">${peso(base(b))} + ${peso(fee(b))} fee</div>`:''}</td></tr></tbody></table></div>
   <div class="wrap"><table><thead><tr><th>Family</th><th>Amount Paid</th><th>Date Paid</th><th>Remaining Balance</th></tr></thead><tbody>${rows}${othRow}</tbody></table></div><div class="rc"><b>Receipt (whole bill)</b><div class="thumbs">${rcpt?`<figure><img src="${esc(rcpt)}" data-r="${esc(rcpt)}" alt="Receipt"></figure>`:'<span class="note">No receipt yet.</span>'}</div><div class="row" style="margin-top:6px"><button class="s p" data-ri="${b.id}">${rcpt?'Change Receipt':'+ Receipt'}</button></div></div></div>`;
@@ -261,7 +263,7 @@ function render(){
     const list=bills.filter(b=>b.type===tab).sort(byNew);
     const tot=list.reduce((s,b)=>s+(Number(b.total)||0)+(Number(b.prevBal)||0),0),bal=list.reduce((s,b)=>s+families.reduce((a,f)=>a+Math.max(base(b)-sumAmt(pays(b,f)),0),0),0);
     const cb=list[0];
-    $('sum').innerHTML=`<div class="hero">Current Charges${cb?' · '+esc(mlabel(cb)):''}<b>${peso(cb?cb.total:0)}</b></div>${tab!=='WiFi'?`<div>Previous Bill<b>${peso(cb?cb.prevBill:0)}</b></div>`:''}<div>Total Billed<b>${peso(tot)}</b></div><div>Total Paid<b>${peso(tot-bal)}</b></div><div>Remaining Balance<b>${peso(bal)}</b></div>`;
+    $('sum').innerHTML=`<div class="hero">Current Charges${cb?' · '+esc(mlabel(cb)):''}<b>${peso(cb?cb.total:0)}</b></div>${tab!=='WiFi'?`<div>Previous Bill<b>${peso(cb?cb.prevBill:0)}</b></div>`:''}<div>Remaining Balance<b>${peso(bal)}</b></div>`;
     $('records').innerHTML=list.map(recordCard).join('');
     $('empty').hidden=list.length>0;
   }else if(isCal){
